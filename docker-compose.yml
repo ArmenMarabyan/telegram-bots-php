@@ -1,0 +1,86 @@
+version: "3.1"
+services:
+
+  db:
+    image: mariadb:10.4
+    container_name: ${PREFIX}_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=q1w2e3r4
+    volumes:
+      - ${DB_PATH_HOST}:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - 8081:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    depends_on:
+      - db
+
+  fpm:
+    container_name: ${PREFIX}_fpm
+    image: ${PREFIX}_fpm
+    build: ./docker/fpm
+#    depends_on:
+#      - php
+    restart: always
+    expose:
+      - 9000
+    volumes:
+      - ${SOURCE_DIR}:${TARGET_DIR}
+      - ./phpconfig:/usr/local/etc/php
+#    cpus: 4
+#    mem_limit: 1024M
+
+  nginx:
+    container_name: ${PREFIX}_nginx
+    image: ${PREFIX}_nginx
+    build: ./docker/nginx
+    restart: always
+    ports:
+      - "8888:80"
+    volumes:
+      - ${SOURCE_DIR}:${TARGET_DIR}
+      - ./docker/nginx/sites:/etc/nginx/conf.d
+    links:
+      - fpm
+    stdin_open: true
+    tty: true
+
+  elasticsearch:
+    image: elasticsearch:7.8.1
+    container_name: ${PREFIX}_elasticsearch
+    links:
+      - fpm
+    #    networks:
+#    volumes:
+#      - ./elasticsearch/healthcheck.sh:/bin/healthcheck.sh
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      discovery.type: single-node
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.8.1
+    container_name: ${PREFIX}_kibana
+    ports:
+      - "5601:5601"
+#  app:
+#    container_name: phalcon-server
+#    build: docker/app
+#    restart: always
+#    ports:
+#      - "127.0.0.1:8080:80"
+#    volumes:
+#      - ./phpconfig:/usr/local/etc/php
+##      - ./phpconfig/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
+#      - ./application:/var/www/html
+#    depends_on:
+#      - db

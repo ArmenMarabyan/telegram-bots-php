@@ -1,0 +1,9 @@
+{
+    "require": {
+        "phalcon/devtools": "^4.1",
+        "elasticsearch/elasticsearch": "^7.14"
+    },
+    "require-dev": {
+        "phalcon/migrations": "^2.1"
+    }
+}
