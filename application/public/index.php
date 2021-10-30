@@ -7,12 +7,9 @@ use Phalcon\Mvc\Application;
 use Phalcon\Url;
 use Phalcon\Db\Adapter\Pdo\Mysql;
 
-
 // Define some absolute path constants to aid in locating resources
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
-
-//include_once(BASE_PATH . '/vendor/autoload.php');
 
 // Register an autoloader
 $loader = new Loader();
@@ -40,14 +37,20 @@ $container->set(
                 'host'     => 'db',
                 'username' => 'root',
                 'password' => 'root',
-                'dbname'   => 'phalcon',
+                'dbname'   => 'tg_tyl',
             ]
         );
     }
 );
 
-//echo '<pre>';
-//print_r($container);die;
+$container->set(
+    'router',
+    function () {
+        require APP_PATH . '/config/router.php';
+
+        return $router;
+    }
+);
 
 $container->set(
     'view',
@@ -67,7 +70,6 @@ $container->set(
     }
 );
 
-//phpinfo();
 $application = new Application($container);
 
 try {
@@ -78,6 +80,11 @@ try {
 
     $response->send();
 } catch (\Exception $e) {
+//    $response = new \Phalcon\Http\Response();
+//    $response->setStatusCode(404, "Page not Found");
+//    $response->send();die;
+
+
     echo 'Exception: ', $e->getMessage();
     echo '<pre>';
     print_r($e->getTraceAsString());

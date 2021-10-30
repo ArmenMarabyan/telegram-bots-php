@@ -1,7 +1,25 @@
 <?php
 
-$router = $di->getRouter();
+use Phalcon\Mvc\Router;
 
-// Define your routes here
+$router = new Router();
 
-$router->handle($_SERVER['REQUEST_URI']);
+$router->add(
+    "/time-your-life/:params",
+    [
+        'controller' => 'tyl',
+        'action'     => 'index',
+        'params' => 1
+    ],
+    ["GET", "POST"]
+);
+
+$router->add(
+    "/time-your-life/users",
+    [
+        'controller' => 'tyl',
+        'action'     => 'getUsers',
+    ],
+);
+
+return $router;
